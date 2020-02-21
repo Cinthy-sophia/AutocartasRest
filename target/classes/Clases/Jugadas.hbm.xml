@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generated 21 feb. 2020 17:59:05 by Hibernate Tools 5.2.12.Final --><!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping auto-import="true" default-access="property" default-cascade="none" default-lazy="true">
+    <class catalog="Autocartas" dynamic-insert="false" dynamic-update="false" mutable="true" name="Clases.Jugadas" optimistic-lock="version" polymorphism="implicit" select-before-update="false" table="Jugadas">
+        <id name="idJugada" type="java.lang.Integer">
+            <column name="id_jugada"/>
+            <generator class="identity"/>
+        </id>
+        <many-to-one class="Clases.Cartas" embed-xml="true" fetch="select" insert="true" name="cartas" not-found="exception" optimistic-lock="true" unique="false" update="true">
+            <column name="id_carta" not-null="true"/>
+        </many-to-one>
+        <property generated="never" lazy="false" name="sesion" optimistic-lock="true" type="string" unique="false">
+            <column length="100" name="sesion" not-null="true"/>
+        </property>
+        <property generated="never" lazy="false" name="caracteristica" optimistic-lock="true" type="string" unique="false">
+            <column length="50" name="caracteristica" not-null="true"/>
+        </property>
+        <property generated="never" lazy="false" name="mano" optimistic-lock="true" type="int" unique="false">
+            <column name="mano" not-null="true"/>
+        </property>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generated 19 feb. 2020 9:03:52 by Hibernate Tools 5.2.12.Final --><!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping auto-import="true" default-access="property" default-cascade="none" default-lazy="true">
+    <class catalog="Autocartas" dynamic-insert="false" dynamic-update="false" mutable="true" name="Clases.Jugadores" optimistic-lock="version" polymorphism="implicit" select-before-update="false" table="Jugadores">
+        <composite-id class="Clases.JugadoresId" mapped="false" name="id" unsaved-value="undefined">
+            <key-property name="idJugador" type="int">
+                <column name="id_jugador"/>
+            </key-property>
+            <key-property name="nick" type="string">
+                <column length="20" name="nick"/>
+            </key-property>
+        </composite-id>
+        <property generated="never" lazy="false" name="nombre" optimistic-lock="true" type="string" unique="false">
+            <column length="30" name="nombre" not-null="true"/>
+        </property>
+        <property generated="never" lazy="false" name="password" optimistic-lock="true" type="string" unique="false">
+            <column length="10" name="password" not-null="true"/>
+        </property>
+        <property generated="never" lazy="false" name="partidasGanadas" optimistic-lock="true" type="int" unique="false">
+            <column name="partidas_ganadas" not-null="true"/>
+        </property>
+        <property generated="never" lazy="false" name="partidasPerdidas" optimistic-lock="true" type="int" unique="false">
+            <column name="partidas_perdidas" not-null="true"/>
+        </property>
+        <property generated="never" lazy="false" name="partidasEmpatadas" optimistic-lock="true" type="int" unique="false">
+            <column name="partidas_empatadas" not-null="true"/>
+        </property>
+    </class>
+</hibernate-mapping>

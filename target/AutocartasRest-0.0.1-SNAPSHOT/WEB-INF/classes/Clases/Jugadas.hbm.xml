@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generated 19 feb. 2020 9:03:52 by Hibernate Tools 5.2.12.Final --><!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping auto-import="true" default-access="property" default-cascade="none" default-lazy="true">
+    <class catalog="Autocartas" dynamic-insert="false" dynamic-update="false" mutable="true" name="Clases.Jugadas" optimistic-lock="version" polymorphism="implicit" select-before-update="false" table="Jugadas">
+        <id name="id" type="int">
+            <column name="id"/>
+            <generator class="assigned"/>
+        </id>
+        <property generated="never" lazy="false" name="ganador" optimistic-lock="true" type="string" unique="false">
+            <column length="20" name="ganador" not-null="true"/>
+        </property>
+        <property generated="never" lazy="false" name="cartaJugador" optimistic-lock="true" type="int" unique="false">
+            <column name="carta_jugador" not-null="true"/>
+        </property>
+        <property generated="never" lazy="false" name="cartaCpu" optimistic-lock="true" type="int" unique="false">
+            <column name="carta_cpu" not-null="true"/>
+        </property>
+        <property generated="never" lazy="false" name="partida" optimistic-lock="true" type="int" unique="false">
+            <column name="partida" not-null="true"/>
+        </property>
+    </class>
+</hibernate-mapping>

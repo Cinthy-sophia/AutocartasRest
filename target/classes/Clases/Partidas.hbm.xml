@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generated 21 feb. 2020 17:59:05 by Hibernate Tools 5.2.12.Final --><!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping auto-import="true" default-access="property" default-cascade="none" default-lazy="true">
+    <class catalog="Autocartas" dynamic-insert="false" dynamic-update="false" mutable="true" name="Clases.Partidas" optimistic-lock="version" polymorphism="implicit" select-before-update="false" table="Partidas">
+        <id name="id" type="java.lang.Integer">
+            <column name="id"/>
+            <generator class="identity"/>
+        </id>
+        <many-to-one class="Clases.Jugadores" embed-xml="true" fetch="select" insert="true" name="jugadores" not-found="exception" optimistic-lock="true" unique="false" update="true">
+            <column length="20" name="jugador"/>
+        </many-to-one>
+        <property generated="never" lazy="false" name="puntuacionJugador" optimistic-lock="true" type="java.lang.Integer" unique="false">
+            <column name="puntuacion_jugador"/>
+        </property>
+        <property generated="never" lazy="false" name="puntuacionCpu" optimistic-lock="true" type="java.lang.Integer" unique="false">
+            <column name="puntuacion_CPU"/>
+        </property>
+        <property generated="never" lazy="false" name="ganadorPartida" optimistic-lock="true" type="string" unique="false">
+            <column length="20" name="ganador_partida"/>
+        </property>
+        <property generated="never" lazy="false" name="sesion" optimistic-lock="true" type="string" unique="false">
+            <column length="100" name="sesion"/>
+        </property>
+    </class>
+</hibernate-mapping>

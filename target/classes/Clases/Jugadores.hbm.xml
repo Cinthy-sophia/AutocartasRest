@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generated 21 feb. 2020 17:59:05 by Hibernate Tools 5.2.12.Final --><!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping auto-import="true" default-access="property" default-cascade="none" default-lazy="true">
+    <class catalog="Autocartas" dynamic-insert="false" dynamic-update="false" mutable="true" name="Clases.Jugadores" optimistic-lock="version" polymorphism="implicit" select-before-update="false" table="Jugadores">
+        <id name="nick" type="string">
+            <column length="20" name="nick"/>
+            <generator class="assigned"/>
+        </id>
+        <property generated="never" lazy="false" name="nombre" optimistic-lock="true" type="string" unique="false">
+            <column length="30" name="nombre"/>
+        </property>
+        <property generated="never" lazy="false" name="password" optimistic-lock="true" type="string" unique="false">
+            <column length="10" name="password" not-null="true"/>
+        </property>
+        <property generated="never" lazy="false" name="partidasGanadas" optimistic-lock="true" type="int" unique="false">
+            <column name="partidas_ganadas" not-null="true"/>
+        </property>
+        <property generated="never" lazy="false" name="partidasPerdidas" optimistic-lock="true" type="int" unique="false">
+            <column name="partidas_perdidas" not-null="true"/>
+        </property>
+        <property generated="never" lazy="false" name="partidasEmpatadas" optimistic-lock="true" type="int" unique="false">
+            <column name="partidas_empatadas" not-null="true"/>
+        </property>
+        <property generated="never" lazy="false" name="sesionActual" optimistic-lock="true" type="string" unique="false">
+            <column length="100" name="sesion_actual"/>
+        </property>
+        <set embed-xml="true" fetch="select" inverse="true" lazy="true" mutable="true" name="partidases" optimistic-lock="true" sort="unsorted" table="Partidas">
+            <key on-delete="noaction">
+                <column length="20" name="jugador"/>
+            </key>
+            <one-to-many class="Clases.Partidas" embed-xml="true" not-found="exception"/>
+        </set>
+    </class>
+</hibernate-mapping>
