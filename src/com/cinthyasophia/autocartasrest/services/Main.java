@@ -2,6 +2,7 @@ package com.cinthyasophia.autocartasrest.services;
 
 import java.rmi.server.UID;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.ws.rs.Consumes;
@@ -26,6 +27,7 @@ import org.hibernate.query.Query;
 
 import com.google.gson.Gson;
 
+import CRUDs.CRUDPartidas;
 import Clases.Cartas;
 import Clases.HibernateUtil;
 import Clases.Jugadas;
@@ -44,23 +46,32 @@ public class Main extends ResourceConfig {
 	private ArrayList<Partidas> partidas;
 	private ArrayList<Jugadores> jugadores;
 	private ArrayList<Jugadas> jugadas;
-	private Partidas partidaActual;
-	private int manoActual;
+	
 	
 	
 	@POST
 	@Path("sesion_nueva")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	public Response validarJugador(@FormParam("jugador") String jugador) {
+	public Response validarJugador(@FormParam("nick") String nick, @FormParam("password") String password) {
 		Gson g = new Gson();
-		jugadores = (ArrayList<Jugadores>) obtenerTablas("jugadores").getEntity();
-		Jugadores jug = g.fromJson(jugador, Jugadores.class); 
+		session = sessionF.openSession();
+		transaction = session.beginTransaction();
+		Query q = session.createQuery("from Jugadores");
+		
+		if(q.list().size()!=0) {
+			jugadores =(ArrayList<Jugadores>) q.list();			
+		}
+		
+		String nickJugador = g.fromJson(nick, String.class); 
+		String passwordJugador = g.fromJson(password, String.class); 
 		
 		for (Jugadores j : jugadores) {
-			if(j.getNick().equalsIgnoreCase(jug.getNick())) {
+			if(j.getNick().equalsIgnoreCase(nickJugador)) {
 				UID id = new UID();
 				j.setSesionActual(id.toString());
+				session.save(j);
+				transaction.commit();
 				
 				return Response.status(200).entity(g.toJson(j.getSesionActual())).build();
 			}
@@ -68,7 +79,7 @@ public class Main extends ResourceConfig {
 		
 		//Si el usuario indicado no existe le envia null, asi el cliente indica al usuario que debe crear uno nuevo
 		
-		return Response.status(200).entity(null).build();
+		return Response.status(200).entity(g.toJson(null)).build();
 
 	}
 	
@@ -81,8 +92,17 @@ public class Main extends ResourceConfig {
 	@Path("baraja_cartas")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response obtenerYRepartirCartas() {
+		Gson g = new Gson();
 		Random rnd = new Random();
-		ArrayList<Cartas> baraja = (ArrayList<Cartas>) obtenerTablas("cartas").getEntity();
+		ArrayList<Cartas> baraja = new ArrayList<>();
+		
+		session = sessionF.openSession();
+		transaction = session.beginTransaction();
+		Query q = session.createQuery("from Cartas");
+		
+		if(q.list().size()!=0) {
+			baraja =(ArrayList<Cartas>) q.list();			
+		}
 		cartasCPU = new ArrayList<>();
 		
 		int al;
@@ -94,7 +114,6 @@ public class Main extends ResourceConfig {
 		}
 		
 		ArrayList<Cartas> cartasUsuario = baraja;
-		Gson g = new Gson();
 		return Response.status(200).entity(g.toJson(cartasUsuario)).build();
 	}
 
@@ -120,12 +139,13 @@ public class Main extends ResourceConfig {
 		mano++;
 		al= rnd.nextInt(CANTIDAD_CARTAS - 1 +1 ) + 1;
 		
-		Cartas cartaEnvia = buscarPorCaracteristica(caract);
+		Cartas cartaEnvia = null;//buscarPorCaracteristica(caract);
 		jugadaEnvia = new Jugadas(cartaEnvia, idSesion,caracteristicas.values()[al].toString(),mano);
 		
 		return Response.status(200).entity(g.toJson(jugadaEnvia)).build();
 
 	}
+	
 	public Cartas buscarPorCaracteristica(String caracteristica) {
 		int min = Integer.MAX_VALUE;
 		int max = Integer.MIN_VALUE;
@@ -189,40 +209,6 @@ public class Main extends ResourceConfig {
 	}
 	
 	
-
-	@GET
-	@Path("{tabla}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response obtenerTablas(@PathParam("tabla") String tabla) {
-		ArrayList datos = null;
-		switch (tabla) {
-			case "cartas":
-				datos = new ArrayList<Cartas>();
-			case "partidas":
-				datos = new ArrayList<Partidas>();
-				break;
-			case "jugadores":
-				datos = new ArrayList<Jugadores>();
-					break;
-			case "jugadas":
-				datos = new ArrayList<Jugadas>();
-				break;
-			
-			default:
-				break;
-		}
-		
-		session = sessionF.openSession();
-		transaction = session.beginTransaction();
-		Query q = session.createQuery("from "+StringUtils.capitalize(tabla));
-		
-		if(q.list().size()!=0) {
-			datos =(ArrayList) q.list();			
-		}
-		Gson g = new Gson();
-		return Response.status(200).entity(g.toJson(datos)).build();
-		
-	}
 	
 	/**
 	 * Insertamos un nuevo jugador a la base de datos para que pueda ser utilizado en una partida.
@@ -237,7 +223,7 @@ public class Main extends ResourceConfig {
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public Response nuevoJugador(@FormParam("jugador")String jugador) {
 		Gson g = new Gson();
-		ArrayList<Jugadores> jugadores = (ArrayList<Jugadores>) obtenerTablas("jugadores").getEntity();
+		//ArrayList<Jugadores> jugadores = (ArrayList<Jugadores>) obtenerTablas("jugadores").getEntity();
 		Jugadores jug = g.fromJson(jugador, Jugadores.class);
 		
 		for (Jugadores j : jugadores) {
@@ -261,7 +247,14 @@ public class Main extends ResourceConfig {
 	public Response nuevaPartida(@FormParam("idSesion")String idSesion ) {
 		Gson g = new Gson();
 		String sesion = g.fromJson(idSesion, String.class);
-		ArrayList<Partidas> partidas = (ArrayList<Partidas>) obtenerTablas("partidas").getEntity();
+		session = sessionF.openSession();
+		transaction = session.beginTransaction();
+		Query q = session.createQuery("from Partidas");
+		
+		if(q.list().size()!=0) {
+			partidas =(ArrayList<Partidas>) q.list();			
+		}
+
 		if(partidas!=null) {
 			for (Partidas p : partidas) {
 				if(p.getJugadores().getSesionActual().equalsIgnoreCase(sesion)) {
@@ -286,6 +279,40 @@ public class Main extends ResourceConfig {
 	}
 	
 	
+	/**
+	 * Este método se encarga de borrar una partida ya iniciada para que pueda ser creada una nueva partida para que el jugador pueda iniciar
+	 * @param idSesion
+	 * @param idPartida
+	 * @return
+	 */
+	@POST
+	@Path("partida_cero")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	public Response reiniciarPartida(@FormParam("idSesion")String idSesion, @FormParam("idPartida") String idPartida) {
+		
+		CRUDPartidas cp = new CRUDPartidas();
+		Gson g = new Gson();
+		String sesion = g.fromJson(idSesion, String.class);
+		int idP = g.fromJson(idPartida, Integer.class);
+		
+		for (Partidas p : partidas) {
+			if(p.getId() == idP && p.getSesion().equalsIgnoreCase(sesion)) {
+				partidas.remove(p);
+				if(cp.borrarPartidas(idPartida) == null) {
+					return Response.status(200).entity(g.toJson(idP)).build();
+					
+				}
+					
+			}
+		}
+		
+		//Devuelve null para indicar que ya ha sido borrada
+		return Response.status(200).entity(g.toJson(null)).build();
+		
+
+	}
+	
 	@GET
 	@Path("sorteo")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -295,79 +322,10 @@ public class Main extends ResourceConfig {
 		Gson g = new Gson();
 		int al;
 		al= rnd.nextInt(0-1 +1 ) + 1;
+		//si devuelve 0 inicia el CPU
+		//Si devuelve 1 inicia el jugador
 		return Response.status(200).entity(g.toJson(al)).build(); 	
-
-	}
-	
-	@POST
-	@Path("partida_desde_cero")
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	public Response reiniciarPartida(@FormParam("idSesion")String idSesion, @FormParam("idPartida") String idPartida) {
-		Gson g = new Gson();
-		String sesion = g.fromJson(idSesion, String.class);
-		int idP = g.fromJson(idPartida, Integer.class);
 		
-		for (Partidas p : partidas) {
-			if(p.getId() == idP && p.getSesion().equalsIgnoreCase(sesion)) {
-				partidas.remove(p);
-				
-				//Devuelve null para indicar que ya ha sido borrada
-				return Response.status(200).entity(null).build();
-				
-			}
-		}
-		
-		return Response.status(200).entity(g.toJson(idP)).build();
-
-	}
-	
-	
-	@POST
-	@Path("{tabla}")
-	public String insertarDatos(@PathParam("tabla") String tabla, String json) {
-		session = sessionF.openSession();
-		transaction = session.beginTransaction();
-		Query q = session.createQuery("from "+StringUtils.capitalize(tabla));
-		Object datos = null;
-		//Segun el dato pedido se insertará uno u otro
-		switch (tabla) {
-			
-			case "partidas":
-				datos = new ArrayList<Partidas>();
-				break;
-			case "jugadores":
-				datos = new ArrayList<Jugadores>();
-					break;
-			case "jugadas":
-				datos = new ArrayList<Jugadas>();
-				break;
-			
-			default:
-				break;
-		}
-		//TLineaEstacion l = new TLineaEstacion(codTLineaE, estaciones, lineas, Integer.parseInt(tfOrden.getText()));
-		//session.save(l);
-		transaction.commit();
-		return "<!DOCTYPE html><html><body>Hola que pasa?</body></html>";
-		
-	}
-	
-	@PUT
-	@Path("{tabla}")
-	public String actualizarDatos(@PathParam("tabla") String tabla) {
-		return "<!DOCTYPE html><html><body>Hola que pasa?</body></html>";
-		
-	}
-	
-	@DELETE
-	@Path("{tabla}")
-	//@Consumes(MediaType.APPLICATION_JSON)
-	public Response borrarDatos(@PathParam("tabla") String tabla) {
-		String message = "DELEEEETE!";
-		
-		System.out.println("DELEEETE!");
-		return Response.status(200).entity(message).build();
 	}
 	
 
